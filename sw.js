@@ -1,6 +1,6 @@
 // Fonctionne hors-ligne : sert les fichiers depuis le cache, met à jour en arrière-plan.
-const CACHE = "rappel-v1";
-const FILES = ["./", "index.html", "content.js", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
+const CACHE = "rappel-v2";
+const FILES = ["./", "index.html", "content.js", "times.js", "manifest.webmanifest", "icon-180.png", "icon-512.png"];
 self.addEventListener("install", (e) => e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES))));
 self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k))))));
 self.addEventListener("fetch", (e) => {
