@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rappel</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rappel">
+<meta name="theme-color" content="#12342c">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#f5f2ea;--card:#fff;--ink:#1d2622;--mute:#6b746f;--line:#e4dfd3;--accent:#12342c;--gold:#b88a2e;--ok:#2f7d4f;--warn:#c98a1b;--red:#b3261e;--chip:#ece7db}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1714;--card:#16221e;--ink:#e9efe9;--mute:#93a29a;--line:#24342e;--accent:#e8c468;--gold:#e8c468;--ok:#5cc28a;--warn:#e0a640;--red:#ef5b52;--chip:#1f2e29}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,system-ui,sans-serif;padding:env(safe-area-inset-top) 16px calc(150px + env(safe-area-inset-bottom))}
+h1{font-size:22px;margin:16px 0 4px;display:flex;justify-content:space-between;align-items:center}
+h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:22px 0 8px}
+.pill{font-size:14px;background:var(--chip);padding:4px 10px;border-radius:99px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:8px 0}
+.quote{font-size:16px}.ref{color:var(--mute);font-size:13px;margin-top:6px}
+.ar{font-family:"Geeza Pro","Amiri",serif;font-size:22px;direction:rtl;text-align:right;line-height:1.8}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.tag{font-size:12px;color:var(--gold);font-weight:600}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:var(--chip);color:var(--ink);cursor:pointer}
+button.on1{background:var(--ok);color:#fff}button.on2{background:var(--accent);color:var(--bg)}
+button.primary{background:var(--accent);color:var(--bg);font-weight:600}
+button.danger{background:transparent;border:1px solid var(--red);color:var(--red)}
+.step{display:flex;gap:8px;align-items:center}.step b{min-width:28px;text-align:center;font-size:18px}
+.bar{height:6px;background:var(--chip);border-radius:9px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--ok)}
+.status{text-align:center;font-weight:600;padding:12px;border-radius:12px;margin:12px 0}
+.status.ok{background:var(--ok);color:#fff}.status.no{background:var(--chip);color:var(--mute)}
+label.chk{display:flex;gap:10px;align-items:center}input[type=checkbox]{width:22px;height:22px;accent-color:var(--ok)}
+details summary{color:var(--mute);font-size:14px;margin-top:6px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}.grid span{aspect-ratio:1;border-radius:4px;background:var(--chip)}
+.grid .g{background:var(--ok)}.grid .a{background:var(--warn)}.grid .r{background:var(--red)}
+.big{font-size:44px;font-weight:700;text-align:center}.mute{color:var(--mute);font-size:14px}
+ol.guide li{margin:8px 0}
+#sos{position:fixed;left:16px;right:16px;bottom:calc(70px + env(safe-area-inset-bottom));background:var(--red);color:#fff;font-weight:700;font-size:17px;padding:16px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border-radius:0;padding:14px 4px;font-size:13px;color:var(--mute)}nav button.cur{color:var(--accent);font-weight:700}
+.overlay{position:fixed;inset:0;background:var(--bg);overflow:auto;padding:calc(env(safe-area-inset-top) + 16px) 16px 40px;z-index:10}
+.timer{font-size:52px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips button.sel{background:var(--accent);color:var(--bg)}
+textarea{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.code{font-size:64px;letter-spacing:.2em;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main id="view"></main>
+<button id="sos">J'ai envie de retomber — aide-moi</button>
+<nav id="tabs">
+  <button data-t="jour">Aujourd'hui</button><button data-t="plan">Plan</button><button data-t="suivi">Suivi</button><button data-t="bloc">Blocages</button>
+</nav>
+<div class="overlay" id="ov" hidden></div>
+
+<script src="content.js"></script>
+<script>
+const PRIERES = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+const PHASES = [
+  { nom: "Fondations", mosq: [0, 4], qmin: 2, qobj: 6 },
+  { nom: "Constance", mosq: [0, 3, 4], qmin: 3, qobj: 8 },
+  { nom: "Dépassement", mosq: [0, 1, 2, 3, 4], qmin: 4, qobj: 10 },
+];
+const PLAN_START = "2026-11-17";
+const KEY = "rappel-v1";
+
+const pad = (n) => String(n).padStart(2, "0");
+const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => keyOf(new Date());
+const diff = (a, b) => Math.round((new Date(b + "T12:00") - new Date(a + "T12:00")) / 864e5);
+const ago = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return keyOf(d); };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+let S = null;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch {}
+const defaults = (x) => { x = x || {}; x.start ??= today(); x.phase ??= 1; x.days ??= {}; x.falls ??= []; x.urges ??= []; return x; };
+S = defaults(S);
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { alert("Sauvegarde impossible sur cet appareil."); } }
+const day = (k = today()) => (S.days[k] ??= { p: [0, 0, 0, 0, 0], q: 0, am: 0, pm: 0, ts: 0 });
+const phase = () => PHASES[S.phase - 1];
+const tenue = (d, ph = phase()) => d && d.p.every((x) => x > 0) && d.q >= ph.qmin && d.am && d.pm;
+
+function streaks() {
+  const pts = [S.start, ...S.falls.map((f) => f.d)].sort();
+  const cur = diff(pts[pts.length - 1], today());
+  let best = cur;
+  for (let i = 1; i < pts.length; i++) best = Math.max(best, diff(pts[i - 1], pts[i]));
+  return { cur, best };
+}
+
+// Passage de phase : 20 des 30 derniers jours avec toutes les prières "mosquée" de la phase.
+function phaseProgress() {
+  let n = 0;
+  for (let i = 0; i < 30; i++) { const d = S.days[ago(i)]; if (d && phase().mosq.every((j) => d.p[j] === 2)) n++; }
+  return n;
+}
+function checkPhase() {
+  if (S.phase < 3 && phaseProgress() >= 20) { S.phase++; save(); alert(`Machaallah. Phase ${S.phase} débloquée : ${phase().nom}.`); }
+}
+
+const texteDuJour = () => { const n = CONTENT.textes.length; const i = diff(PLAN_START, today()) * 2; return CONTENT.textes[((i % n) + n) % n]; };
+const coucher = () => { const w = Math.max(0, Math.floor(diff(PLAN_START, today()) / 7)); const m = Math.max(22 * 60 + 30, 23 * 60 + 30 - 15 * w); return `${Math.floor(m / 60)}h${pad(m % 60)}`; };
+const dhikrList = (arr) => arr.map((x) => `<div class="row" style="display:block"><div class="ar">${x.ar}</div><div>${esc(x.fr)} ${x.n ? `<b>×${x.n}</b>` : ""}</div><div class="ref">${esc(x.r)}</div></div>`).join("");
+
+// ---------- Écrans ----------
+const views = {
+  jour() {
+    const d = day(), ph = phase(), t = texteDuJour(), { cur } = streaks();
+    const etats = ["—", "À l'heure", "Mosquée 🕌"];
+    return `
+    <h1>Aujourd'hui <span class="pill">🌙 ${cur} j</span></h1>
+    <div class="card"><div class="quote">« ${esc(t.t)} »</div><div class="ref">${esc(t.r)}</div></div>
+    <h2>Prières</h2><div class="card">
+      ${PRIERES.map((n, i) => `<div class="row"><div>${n}${ph.mosq.includes(i) ? ' <span class="tag">objectif mosquée</span>' : ""}</div>
+        <button class="on${d.p[i]}" data-p="${i}">${etats[d.p[i]]}</button></div>`).join("")}
+      <div class="mute" style="margin-top:8px">Minimum : les cinq à l'heure, même chez toi. Touche pour changer.</div>
+    </div>
+    <h2>Coran</h2><div class="card">
+      <div class="row"><div><b>${d.q}</b> page${d.q > 1 ? "s" : ""}<div class="mute">minimum ${ph.qmin} · objectif ${ph.qobj}</div></div>
+        <div class="step"><button data-q="-1">−</button><button data-q="1" class="primary">+1</button></div></div>
+      <div class="bar"><i style="width:${Math.min(100, (d.q / ph.qobj) * 100)}%"></i></div>
+    </div>
+    <h2>Dhikr</h2><div class="card">
+      <div class="row"><label class="chk"><input type="checkbox" data-k="am" ${d.am ? "checked" : ""}> Adhkar du matin</label></div>
+      <div class="row"><label class="chk"><input type="checkbox" data-k="pm" ${d.pm ? "checked" : ""}> Adhkar du soir</label></div>
+      <details><summary>Voir les adhkar</summary>${dhikrList(CONTENT.adhkar)}</details>
+      <div class="row"><div>Tasbih 33/33/34 après la prière<div class="mute">objectif, pas obligatoire</div></div>
+        <div class="step"><button data-ts="-1">−</button><b>${d.ts}/5</b><button data-ts="1">+</button></div></div>
+    </div>
+    <div class="status ${tenue(d) ? "ok" : "no"}">${tenue(d) ? "✓ Journée tenue — minimum atteint" : "Minimum pas encore atteint"}</div>`;
+  },
+
+  plan() {
+    const n = phaseProgress();
+    return `
+    <h1>Le plan</h1>
+    ${PHASES.map((p, i) => `<div class="card" style="${i + 1 === S.phase ? "border-color:var(--gold);border-width:2px" : "opacity:.75"}">
+      <b>Phase ${i + 1} — ${p.nom}</b>${i + 1 === S.phase ? ' <span class="tag">en cours</span>' : ""}
+      <div>Mosquée : ${p.mosq.map((j) => PRIERES[j]).join(", ")}</div>
+      <div>Coran : minimum ${p.qmin} pages, objectif ${p.qobj}</div>
+      ${i + 1 === S.phase && S.phase < 3 ? `<div class="bar"><i style="width:${(n / 20) * 100}%"></i></div><div class="mute">${n}/20 jours (sur les 30 derniers) avec ${p.mosq.map((j) => PRIERES[j]).join(" + ")} à la mosquée pour passer à la suite.</div>` : ""}
+    </div>`).join("")}
+    <h2>Sommeil</h2><div class="card">Objectif cette semaine : <b>au lit à ${coucher()}</b>. On avance de 15 min par semaine jusqu'à 22h30.
+      <div class="mute">Au printemps, Isha passe après 22h et Fajr remonte vers 4h40 : couche-toi juste après Isha et fais une sieste de 20 min l'après-midi (qaylula).</div></div>
+    <h2>Bonus</h2><div class="card">
+      <div><b>Jeûne du lundi (et jeudi)</b> quand tu te sens prêt. « Que celui qui ne peut pas se marier jeûne, car c'est pour lui une protection. »</div><div class="ref">Bukhari 5066, Muslim 1400</div></div>
+    <div class="card"><b>Ramadan 1448</b> — début attendu vers le 8 février 2027 (selon l'observation). Il tombe en phase 2 : c'est le moment de tout ancrer.</div>
+    <h2>Dhikr tournant (notification de 16h45)</h2><div class="card">${dhikrList(CONTENT.dhikr)}</div>`;
+  },
+
+  suivi() {
+    const { cur, best } = streaks();
+    const fallDays = new Set(S.falls.map((f) => f.d));
+    const cells = Array.from({ length: 30 }, (_, i) => { const k = ago(29 - i), d = S.days[k]; return `<span class="${fallDays.has(k) ? "r" : tenue(d) ? "g" : d && (d.p.some(Boolean) || d.q || d.am || d.pm) ? "a" : ""}" title="${k}"></span>`; }).join("");
+    const held = S.urges.filter((u) => u.held).length;
+    return `
+    <h1>Suivi</h1>
+    <div class="card"><div class="big">${cur} jour${cur > 1 ? "s" : ""}</div><div class="mute" style="text-align:center">propre · meilleur : ${best} jours</div></div>
+    <h2>30 derniers jours</h2><div class="card"><div class="grid">${cells}</div>
+      <div class="mute" style="margin-top:8px">vert = minimum tenu · orange = partiel · rouge = chute</div></div>
+    <h2>Bouton d'urgence</h2><div class="card">${S.urges.length ? `Utilisé ${S.urges.length} fois · <b>tenu ${held} fois</b>` : "Pas encore utilisé."}
+      ${S.urges.slice(-5).reverse().map((u) => `<div class="row"><div class="mute">${u.d} — ${esc(u.why || "?")}${u.note ? " · " + esc(u.note) : ""}</div><div>${u.held ? "✓" : "✗"}</div></div>`).join("")}</div>
+    <h2>Si tu es tombé</h2><div class="card"><button class="danger" id="fall">J'ai chuté aujourd'hui</button>
+      <div class="mute" style="margin-top:8px">Pas de honte : on note, on se repent, on repart. Ton meilleur score reste.</div></div>
+    <h2>Mes données</h2><div class="card"><div class="mute">Tout reste sur ce téléphone. Sauvegarde de temps en temps.</div>
+      <div class="step" style="margin-top:8px"><button id="exp">Exporter</button><label class="mute"><input type="file" id="imp" accept=".json" hidden><button onclick="this.previousElementSibling.click()">Importer</button></label></div></div>`;
+  },
+
+  bloc() {
+    return `
+    <h1>Blocages</h1>
+    <div class="card mute">Ce n'est pas un mur, c'est de la friction : quelques minutes de difficulté suffisent souvent à faire passer l'envie. Tout est gratuit.</div>
+    <h2>1. Le code Temps d'écran</h2><div class="card">
+      Ce code est généré au hasard sur ton téléphone, affiché 60 secondes, puis effacé. Il n'est enregistré nulle part : ni ici, ni chez Claude.
+      <ol class="guide"><li>Ouvre d'abord <b>Réglages → Temps d'écran → Utiliser un code Temps d'écran</b>, puis reviens ici.</li>
+      <li>Génère le code, mémorise-le quelques secondes, retourne dans Réglages et tape-le deux fois. Ne l'écris pas, ne le photographie pas.</li>
+      <li>Si iOS te propose de lier ton identifiant Apple pour récupérer le code, c'est une porte de sortie : passe cette étape si c'est proposé.</li></ol>
+      <button class="primary" id="gen">Générer le code (60 s)</button><div id="codebox"></div></div>
+    <h2>2. Avant de verrouiller : supprime</h2><div class="card">X, Reddit, Opera, Chrome, l'app Google.</div>
+    <h2>3. Temps d'écran → Restrictions relatives au contenu et à la confidentialité</h2><div class="card"><ol class="guide">
+      <li>Active les restrictions.</li>
+      <li><b>Achats dans l'iTunes Store et l'App Store → Installation d'apps : Ne pas autoriser.</b> Tu ne pourras plus réinstaller ces apps (ni aucune autre) sans le code.</li>
+      <li><b>Restrictions de contenu → Contenu web → Limiter les sites web pour adultes.</b> Dans « Ne jamais autoriser », ajoute : x.com, twitter.com, reddit.com.</li>
+      <li>En bas, <b>Modifications du code : Ne pas autoriser</b> et <b>Modifications du compte : Ne pas autoriser</b>.</li></ol></div>
+    <h2>4. Filtre NextDNS (iPhone + PC)</h2><div class="card"><ol class="guide">
+      <li>Sur le PC, crée un compte gratuit sur <b>nextdns.io</b>.</li>
+      <li>Onglet <b>Contrôle parental</b> : active la Recherche sécurisée, le Mode restreint YouTube et le blocage « Pornographie ».</li>
+      <li>Onglet <b>Liste de refus</b> : x.com, twitter.com, reddit.com, redd.it, opera.com.</li>
+      <li>Sur l'iPhone, dans Safari : <b>apple.nextdns.io</b> → entre ton identifiant de configuration → télécharge le profil → Réglages → Profil téléchargé → Installer.</li>
+      <li>Sur le PC : Paramètres → Réseau → ta connexion → DNS : saisie manuelle avec les adresses données par NextDNS (ou à défaut 1.1.1.3 et 1.0.0.3, filtre familial Cloudflare). Dans Chrome/Edge, désactive « DNS sécurisé » ou mets-y l'adresse NextDNS.</li></ol></div>
+    <h2>5. La nuit</h2><div class="card">Le téléphone charge <b>hors de la chambre</b>. Achète un réveil à 5 € si besoin.</div>`;
+  },
+};
+
+// ---------- Rendu et événements ----------
+let tab = "jour";
+function render() {
+  document.getElementById("view").innerHTML = views[tab]();
+  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("cur", b.dataset.t === tab));
+  window.scrollTo(0, 0);
+}
+function rerender() { const y = window.scrollY; document.getElementById("view").innerHTML = views[tab](); window.scrollTo(0, y); }
+
+document.getElementById("tabs").onclick = (e) => { const t = e.target.dataset.t; if (t) { tab = t; render(); } };
+document.getElementById("view").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const d = day();
+  if (b.dataset.p) { d.p[b.dataset.p] = (d.p[b.dataset.p] + 1) % 3; save(); checkPhase(); rerender(); }
+  else if (b.dataset.q) { d.q = Math.max(0, d.q + Number(b.dataset.q)); save(); rerender(); }
+  else if (b.dataset.ts) { d.ts = Math.min(5, Math.max(0, d.ts + Number(b.dataset.ts))); save(); rerender(); }
+  else if (b.id === "fall") { if (confirm("Noter une chute aujourd'hui ? Ton compteur repart, ton meilleur score reste.")) { S.falls.push({ d: today(), t: new Date().toISOString() }); save(); tawba(); } }
+  else if (b.id === "gen") genCode();
+  else if (b.id === "exp") exportData();
+});
+document.getElementById("view").addEventListener("change", (e) => {
+  if (e.target.dataset.k) { day()[e.target.dataset.k] = e.target.checked ? 1 : 0; save(); rerender(); }
+  if (e.target.id === "imp") importData(e.target.files[0]);
+});
+
+function exportData() {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S)], { type: "application/json" }));
+  a.download = `rappel-${today()}.json`; a.click();
+}
+function importData(f) {
+  if (!f) return;
+  f.text().then((txt) => {
+    const x = JSON.parse(txt);
+    if (!x || typeof x.days !== "object" || !Array.isArray(x.falls)) throw 0;
+    if (confirm("Remplacer les données actuelles par ce fichier ?")) { S = defaults(x); save(); render(); }
+  }).catch(() => alert("Fichier invalide."));
+}
+
+function genCode() {
+  const c = String(crypto.getRandomValues(new Uint32Array(1))[0] % 10000).padStart(4, "0");
+  const box = document.getElementById("codebox");
+  let s = 60;
+  box.innerHTML = `<div class="code">${c}</div><div class="mute" style="text-align:center">s'efface dans <b id="cs">60</b> s</div>`;
+  const it = setInterval(() => { s--; const el = document.getElementById("cs"); if (el) el.textContent = s; if (s <= 0 || !el) { clearInterval(it); if (document.getElementById("codebox")) document.getElementById("codebox").innerHTML = '<div class="mute">Code effacé.</div>'; } }, 1000);
+}
+
+// ---------- Urgence ----------
+const ov = document.getElementById("ov");
+let timer = null;
+function closeOv() { clearInterval(timer); ov.hidden = true; ov.innerHTML = ""; render(); }
+
+function urgence() {
+  const textes = CONTENT.textes.filter((x) => x.u);
+  const t = textes[Math.floor(Math.random() * textes.length)];
+  const end = Date.now() + 10 * 60 * 1000;
+  const u = { d: today(), t: new Date().toISOString(), why: "", note: "", held: false };
+  const steps = [
+    `<h1>Stop. 10 minutes.</h1><p>L'envie monte comme une vague, puis elle redescend. Elle ne dure pas. Suis les étapes, une par une, sans réfléchir.</p>`,
+    `<h1>Lève-toi.</h1><p>Quitte la pièce où tu es. Va là où il y a du monde ou de la lumière. Garde cette app ouverte, rien d'autre.</p><div class="ar">أَعُوذُ بِاللهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</div><p class="mute">A'udhu billahi mina sh-shaytani r-rajim — dis-le maintenant.</p>`,
+    `<h1>Ablutions à l'eau froide.</h1><p>Prends ton temps. L'eau froide calme le corps.</p><div class="card"><div class="quote">« Quiconque fait bien ses ablutions puis prie deux rakaat en y étant présent de cœur et de corps, le Paradis lui est dû. »</div><div class="ref">Muslim 234</div></div>`,
+    `<h1>Prie deux rakaat.</h1><p>Lentement. Dans la prosternation, demande à Allah de te protéger, avec tes propres mots.</p>`,
+    `<h1>Dhikr.</h1><div class="card"><div class="ar">يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَىٰ دِينِكَ</div><div class="mute">Ya Muqallib al-qulub, thabbit qalbi 'ala dinik ×7 — Tirmidhi 2140</div></div>
+     <div class="card" style="text-align:center"><div class="mute">La hawla wa la quwwata illa billah</div><button class="primary" id="cnt" style="font-size:28px;width:100%;padding:24px;margin-top:8px">0 / 33</button></div>
+     <div class="card"><div class="quote">« ${esc(t.t)} »</div><div class="ref">${esc(t.r)}</div></div>`,
+    `<h1>Qu'est-ce qui t'a poussé ?</h1><div class="chips">${["Solitude", "Fatigue", "Ennui", "Stress", "Tristesse", "Autre"].map((w) => `<button data-why="${w}">${w}</button>`).join("")}</div>
+     <p><textarea id="note" rows="2" placeholder="Une phrase (facultatif)"></textarea></p>
+     <button class="primary" id="held" style="width:100%;padding:16px">J'ai tenu, alhamdulillah</button>
+     <p><button class="danger" id="fell" style="width:100%">J'ai chuté</button></p>`,
+  ];
+  let i = 0, cnt = 0;
+  const draw = () => {
+    ov.innerHTML = `<div class="timer" id="tm"></div>${steps[i]}
+      ${i < steps.length - 1 ? `<p><button class="primary" id="next" style="width:100%;padding:16px">C'est fait →</button></p>` : ""}
+      <p style="text-align:center"><button id="quit" style="background:none" class="mute">Fermer</button></p>`;
+    tick();
+  };
+  const tick = () => { const s = Math.max(0, Math.round((end - Date.now()) / 1000)); const el = document.getElementById("tm"); if (el) el.textContent = s ? `${Math.floor(s / 60)}:${pad(s % 60)}` : "Tu as tenu 10 minutes."; };
+  const finish = (held) => {
+    u.held = held; u.note = (document.getElementById("note") || {}).value || "";
+    S.urges.push(u);
+    if (!held) S.falls.push({ d: today(), t: new Date().toISOString() });
+    save();
+    held ? (ov.innerHTML = `<h1>Alhamdulillah.</h1><p>Tu viens de gagner une bataille. Chaque fois que tu tiens, la suivante devient plus facile.</p><div class="card"><div class="quote">« Celui qui délaisse une chose pour Allah, Allah la lui remplace par mieux. »</div><div class="ref">Ahmad (authentifié par al-Albani)</div></div><button class="primary" id="quit" style="width:100%;padding:16px">Fermer</button>`) : (clearInterval(timer), tawba());
+  };
+  ov.onclick = (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.id === "next") { i++; draw(); }
+    else if (b.id === "quit") closeOv();
+    else if (b.id === "cnt") { cnt = Math.min(33, cnt + 1); b.textContent = cnt === 33 ? "33 / 33 ✓" : `${cnt} / 33`; if (navigator.vibrate) navigator.vibrate(15); }
+    else if (b.dataset.why) { u.why = b.dataset.why; ov.querySelectorAll("[data-why]").forEach((x) => x.classList.toggle("sel", x === b)); }
+    else if (b.id === "held") finish(true);
+    else if (b.id === "fell") finish(false);
+  };
+  ov.hidden = false; draw();
+  clearInterval(timer); timer = setInterval(tick, 1000);
+}
+
+function tawba() {
+  const { best } = streaks();
+  ov.onclick = (e) => { if (e.target.id === "quit") closeOv(); };
+  ov.innerHTML = `<h1>On repart. Maintenant.</h1>
+    <div class="card"><div class="quote">« Ô Mes serviteurs qui avez commis des excès à votre propre détriment, ne désespérez pas de la miséricorde d'Allah. Allah pardonne tous les péchés. »</div><div class="ref">Coran 39:53</div></div>
+    <div class="card"><div class="quote">« Tous les fils d'Adam commettent des fautes, et les meilleurs fautifs sont ceux qui se repentent. »</div><div class="ref">Tirmidhi 2499 (hasan)</div></div>
+    <h2>Ce que tu fais maintenant</h2><ol class="guide">
+      <li>Ghusl, puis deux rakaat de repentir. « Aucun serviteur ne commet un péché, puis se purifie, prie deux rakaat et demande pardon à Allah, sans qu'Allah lui pardonne. » <span class="ref">Abu Dawud 1521</span></li>
+      <li>Astaghfirullaha wa atubu ilayh, autant que tu peux.</li>
+      <li>Une bonne action aujourd'hui : une sadaqa, même 1 €, ou un appel à tes parents.</li>
+      <li>Regarde ce qui t'a fait tomber (heure, appli, état) et ferme cette porte.</li></ol>
+    <div class="card">Ton meilleur score reste : <b>${best} jours</b>. Tu l'as fait une fois, tu le referas.</div>
+    <button class="primary" id="quit" style="width:100%;padding:16px">Je repars</button>`;
+  ov.hidden = false;
+}
+
+document.getElementById("sos").onclick = urgence;
+render();
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>

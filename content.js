@@ -1,0 +1,66 @@
+// Contenu partagé par l'app (navigateur) et le générateur de calendrier (node).
+// Traductions du sens, pas mot à mot. u:1 = affiché aussi dans le bouton d'urgence.
+const CONTENT = {
+  textes: [
+    { t: "Ô Mes serviteurs qui avez commis des excès à votre propre détriment, ne désespérez pas de la miséricorde d'Allah. Allah pardonne tous les péchés.", r: "Coran 39:53", u: 1 },
+    { t: "Dis aux croyants de baisser leurs regards et de préserver leur chasteté : c'est plus pur pour eux.", r: "Coran 24:30", u: 1 },
+    { t: "La prière préserve de la turpitude et du blâmable.", r: "Coran 29:45" },
+    { t: "C'est par l'évocation d'Allah que les cœurs s'apaisent.", r: "Coran 13:28", u: 1 },
+    { t: "Ô vous qui croyez, cherchez secours dans l'endurance et la prière. Allah est avec les endurants.", r: "Coran 2:153", u: 1 },
+    { t: "Avec la difficulté vient la facilité. Oui, avec la difficulté vient la facilité.", r: "Coran 94:5-6" },
+    { t: "Allah n'impose à aucune âme une charge supérieure à sa capacité.", r: "Coran 2:286" },
+    { t: "Les bonnes actions effacent les mauvaises.", r: "Coran 11:114" },
+    { t: "N'approchez pas de la fornication : c'est une turpitude, et quel mauvais chemin.", r: "Coran 17:32", u: 1 },
+    { t: "Ceux qui, lorsqu'ils commettent une turpitude ou se font du tort, se souviennent d'Allah et demandent pardon pour leurs péchés — et qui pardonne les péchés, si ce n'est Allah ?", r: "Coran 3:135", u: 1 },
+    { t: "Nous sommes plus proche de lui que sa veine jugulaire.", r: "Coran 50:16", u: 1 },
+    { t: "Ne sait-il pas qu'Allah voit ?", r: "Coran 96:14", u: 1 },
+    { t: "Quiconque craint Allah, Il lui donne une issue et lui accorde Ses dons par où il ne s'y attend pas.", r: "Coran 65:2-3" },
+    { t: "Quand Mes serviteurs t'interrogent sur Moi, Je suis tout proche. Je réponds à l'appel de celui qui M'invoque.", r: "Coran 2:186" },
+    { t: "Ceux qui luttent pour Notre cause, Nous les guiderons sur Nos sentiers.", r: "Coran 29:69", u: 1 },
+    { t: "Quant à celui qui aura redouté la comparution devant son Seigneur et préservé son âme de la passion, le Paradis sera son refuge.", r: "Coran 79:40-41", u: 1 },
+    { t: "Les actes ne valent que par les intentions.", r: "Bukhari 1, Muslim 1907" },
+    { t: "L'acte le plus aimé d'Allah est le plus régulier, même s'il est petit.", r: "Bukhari 6464, Muslim 783" },
+    { t: "Celui qui me garantit ce qui est entre ses mâchoires et ce qui est entre ses jambes, je lui garantis le Paradis.", r: "Bukhari 6474", u: 1 },
+    { t: "Celui qui prie Isha en groupe, c'est comme s'il avait prié la moitié de la nuit. Et celui qui prie Fajr en groupe, c'est comme s'il avait prié la nuit entière.", r: "Muslim 656" },
+    { t: "Aucune prière n'est plus lourde pour les hypocrites que Fajr et Isha. S'ils savaient ce qu'elles contiennent, ils y viendraient même en rampant.", r: "Bukhari 657, Muslim 651" },
+    { t: "Celui qui prie Fajr est sous la protection d'Allah.", r: "Muslim 657" },
+    { t: "Tous les fils d'Adam commettent des fautes, et les meilleurs fautifs sont ceux qui se repentent.", r: "Tirmidhi 2499 (hasan)", u: 1 },
+    { t: "Allah se réjouit davantage du repentir de Son serviteur qu'un homme qui retrouve sa monture perdue dans le désert.", r: "Bukhari 6309, Muslim 2747", u: 1 },
+    { t: "Crains Allah où que tu sois. Fais suivre la mauvaise action d'une bonne, elle l'effacera. Et comporte-toi bien avec les gens.", r: "Tirmidhi 1987 (hasan)", u: 1 },
+    { t: "Deux paroles légères sur la langue, lourdes dans la balance, aimées du Tout-Miséricordieux : SubhanAllahi wa bihamdihi, SubhanAllahil-'Azim.", r: "Bukhari 6406, Muslim 2694" },
+    { t: "Sept seront à l'ombre d'Allah le Jour où il n'y aura d'autre ombre que la Sienne, dont : un jeune qui a grandi dans l'adoration d'Allah, un homme dont le cœur est attaché aux mosquées, et un homme qu'une femme belle et de rang appelle, et qui répond : « Je crains Allah ».", r: "Bukhari 660, Muslim 1031", u: 1 },
+    { t: "Quiconque fait bien ses ablutions puis prie deux rakaat en y étant présent de cœur et de corps, le Paradis lui est dû.", r: "Muslim 234", u: 1 },
+    { t: "Aucun serviteur ne commet un péché, puis se purifie, prie deux rakaat et demande pardon à Allah, sans qu'Allah lui pardonne.", r: "Abu Dawud 1521, Tirmidhi 406", u: 1 },
+    { t: "La pudeur n'apporte que du bien.", r: "Bukhari 6117, Muslim 37" },
+    { t: "Le fort n'est pas celui qui terrasse les autres. Le fort est celui qui se maîtrise.", r: "Bukhari 6114" },
+    { t: "Le Paradis est entouré de choses pénibles, et l'Enfer est entouré de désirs.", r: "Muslim 2822", u: 1 },
+    { t: "Ô jeunes gens ! Que celui d'entre vous qui en a les moyens se marie, car cela aide à baisser le regard et à préserver la chasteté. Et que celui qui ne le peut pas jeûne, car c'est pour lui une protection.", r: "Bukhari 5066, Muslim 1400", u: 1 },
+    { t: "Allah dit : Je suis tel que Mon serviteur pense de Moi, et Je suis avec lui quand il M'évoque.", r: "Bukhari 7405, Muslim 2675" },
+    { t: "Celui qui va à la mosquée le matin et le soir, Allah lui prépare une demeure au Paradis à chaque aller et retour.", r: "Bukhari 662, Muslim 669" },
+    { t: "Celui qui dit cent fois par jour SubhanAllahi wa bihamdihi, ses péchés sont effacés, même s'ils étaient comme l'écume de la mer.", r: "Bukhari 6405, Muslim 2691" },
+    { t: "La prière en groupe vaut vingt-sept fois la prière faite seul.", r: "Bukhari 645, Muslim 650" },
+    { t: "Les cinq prières sont comme une rivière devant ta porte où tu te laves cinq fois par jour : il ne reste plus de saleté.", r: "Bukhari 528, Muslim 667" },
+    { t: "Celui qui délaisse une chose pour Allah, Allah la lui remplace par mieux.", r: "Ahmad (authentifié par al-Albani)", u: 1 },
+  ],
+
+  dhikr: [
+    { ar: "سُبْحَانَ اللهِ وَبِحَمْدِهِ", fr: "SubhanAllahi wa bihamdihi", n: 100, r: "Bukhari 6405" },
+    { ar: "أَسْتَغْفِرُ اللهَ وَأَتُوبُ إِلَيْهِ", fr: "Astaghfirullaha wa atubu ilayh", n: 100, r: "Muslim 2702" },
+    { ar: "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ", fr: "La hawla wa la quwwata illa billah — un trésor du Paradis", n: 33, r: "Bukhari 6384" },
+    { ar: "لَا إِلَٰهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ", fr: "La ilaha illa Allah wahdahu la sharika lah…", n: 10, r: "Muslim 2693" },
+    { ar: "اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ", fr: "Allahumma salli 'ala Muhammad — une prière sur lui, dix d'Allah sur toi", n: 10, r: "Muslim 408" },
+    { ar: "يَا مُقَلِّبَ الْقُلُوبِ ثَبِّتْ قَلْبِي عَلَىٰ دِينِكَ", fr: "Ya Muqallib al-qulub, thabbit qalbi 'ala dinik — Ô Toi qui retournes les cœurs, affermis mon cœur sur Ta religion", n: 7, r: "Tirmidhi 2140" },
+  ],
+
+  adhkar: [
+    { ar: "آيَةُ الْكُرْسِيّ", fr: "Ayat al-Kursi (Al-Baqara 2:255)", n: 1, r: "Nasa'i, al-Hakim" },
+    { ar: "قُلْ هُوَ اللهُ أَحَدٌ · الْفَلَق · النَّاس", fr: "Al-Ikhlas, Al-Falaq, An-Nas", n: 3, r: "Abu Dawud 5082" },
+    { ar: "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَٰهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَىٰ عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", fr: "Sayyid al-istighfar — le maître de la demande de pardon", n: 1, r: "Bukhari 6306" },
+    { ar: "بِسْمِ اللهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", fr: "Bismillahi lladhi la yadurru…", n: 3, r: "Abu Dawud 5088, Tirmidhi 3388" },
+    { ar: "سُبْحَانَ اللهِ وَبِحَمْدِهِ", fr: "SubhanAllahi wa bihamdihi", n: 100, r: "Muslim 2692" },
+  ],
+
+  sommeil: { ar: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا", fr: "Bismika Allahumma amutu wa ahya — puis Ayat al-Kursi", r: "Bukhari 6324, Bukhari 2311" },
+};
+
+if (typeof module !== "undefined") module.exports = CONTENT;
